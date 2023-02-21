@@ -34,6 +34,14 @@ exports.getProducts = catchAsyncError(async(req, res, next)=>{
 })
 // create product -/api/v1/products/new
 exports.newProduct = catchAsyncError(async (req, res, next)=>{
+    let images = []
+    if(req.files.length > 0){
+        req.files.forEach(file=>{
+            let url =`${process.env.BACKEND_URL}/uploads/product/${file.originalname}`
+            images.push({image: url})
+        })
+    }
+    req.body.images = images;
     req.body.user = req.user.id;
    const product = await Product.create(req.body);
    res.status(201).json({
@@ -172,3 +180,12 @@ exports.deleteReview = catchAsyncError(async(req, res, next) =>{
         success: true
     })
 })
+
+// get admin products - api/v1/admin/products
+exports.getAdminProducts = catchAsyncError(async(req, res, next)=>{
+    const products = await Product.find();
+    res.status(200).send({
+        success: true,
+        products
+    })
+});
